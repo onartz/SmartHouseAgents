@@ -133,31 +133,21 @@ public class MeteoAg extends Agent{
 			this.weatherPhenomenon = weatherPhenomenon;
 		}
 
-
-
 		public boolean isLastState() {
 			return lastState;
 		}
-
-
 
 		public void setLastState(boolean lastState) {
 			this.lastState = lastState;
 		}
 
-
-
 		public WeatherPhenomenon getWeatherPhenomenon() {
 			return weatherPhenomenon;
 		}
 
-
-
 		public void setWeatherPhenomenon(WeatherPhenomenon weatherPhenomenon) {
 			this.weatherPhenomenon = weatherPhenomenon;
-		}
-	
-		
+		}		
 	}
 	
 	/*
@@ -197,6 +187,7 @@ public class MeteoAg extends Agent{
 			this.temperature = temperature;
 			this.humidity = humidity;
 			this.setWind(wind);		
+			
 		}
 		public float getTemperature() {
 			return temperature;
@@ -241,6 +232,14 @@ public class MeteoAg extends Agent{
 		 */
 		public boolean windLevelHasChanged;
 		
+		public void setWindLevelHasChanged(boolean windLevelHasChanged) {
+			this.windLevelHasChanged = windLevelHasChanged;
+		}
+		public boolean isWindLevelHasChanged() {
+			return windLevelHasChanged;
+		}
+
+
 		//Meteo de maintenant
 		private MeteoSet actualMeteoSet;
 		public MeteoSet getActual() {
@@ -279,42 +278,7 @@ public class MeteoAg extends Agent{
 		public void setWind(Wind wind) {
 			this.actualMeteoSet.setWind(wind);
 		}
-		/*public boolean isFmHighTempAlert() {
-			return fmHighTemperatureAlert;
-		}
-		public void setFmHighTempAlert(boolean fmHighTempAlert) {
-			this.fmHighTemperatureAlert = fmHighTempAlert;
-		}
-		public boolean isFmLowTempAlert() {
-			return fmLowTemperatureAlert;
-		}
-		public void setFmLowTempAlert(boolean fmLowTempAlert) {
-			this.fmLowTemperatureAlert = fmLowTempAlert;
-		}
-		public boolean isFdHighTempAlert() {
-			return fdHighTemperatureAlert;
-		}
-		public void setFdHighTempAlert(boolean fdHighTempAlert) {
-			this.fdHighTemperatureAlert = fdHighTempAlert;
-		}
-		public boolean isFdLowTempAlert() {
-			return fdLowTemperatureAlert;
-		}
-		public void setFdLowTempAlert(boolean fdLowTempAlert) {
-			this.fdLowTemperatureAlert = fdLowTempAlert;
-		}
-		public float getLowTemperature() {
-			return lowTemperature;
-		}
-		public void setLowTemperature(float lowTemperature) {
-			this.lowTemperature = lowTemperature;
-		}
-		public float getHighTemperature() {
-			return highTemperature;
-		}
-		public void setHighTemperature(float highTemperature) {
-			this.highTemperature = highTemperature;
-		}*/
+		
 		public float getWindSpeed() {
 			return windSpeed;
 		}
@@ -323,6 +287,8 @@ public class MeteoAg extends Agent{
 		}
 		private float windSpeed;
 		private boolean windSpeedAlert;
+
+		private MeteoSet previousMeteoSet;
 		
 		public boolean isFmWindSpeedAlert() {
 			return fmWindSpeedAlert;
@@ -382,13 +348,9 @@ public class MeteoAg extends Agent{
 			latitude = 0;
 			forecast = new MeteoForecast();
 			actualMeteoSet = new MeteoSet();
+			previousMeteoSet = new MeteoSet();
 			windLevelHasChanged = true;
-			//windSpeedAlert = false;
-			lowTemperatureAlert = false;
-			highTemperatureAlert = false;
-			lowTemperature = -5;
-			highTemperature = 30;
-			//windSpeed = 5;
+			
 		}
 		public void update(String jsonResult) {
 			
@@ -412,63 +374,21 @@ public class MeteoAg extends Agent{
 									
 					//udate with new datas
 					//Todo : changer windDirection
-					actualMeteoSet.update(temperature, humidity, new Wind(windSpeedValue, 0));
+					Wind wind = new Wind(windSpeedValue,0);
+					
+					/*if(!(wind.getWindLevel().getClass().equals(actualMeteoSet.getWind().getWindLevel().getClass())))
+							model.setWindLevelHasChanged(true);*/
+					actualMeteoSet.update(temperature, humidity, wind);
+													
+				
+					//actualMeteoSet.update(temperature, humidity, new Wind(windSpeedValue, 0));
 					System.out.print("Temperature : ");System.out.println(actualMeteoSet.getTemperature());
 					System.out.print("WindSpeedValue : ");System.out.println(actualMeteoSet.getWind().getSpeed());
 					
 					System.out.print("Number of windSubscribers : ");System.out.println(subscribers.size());
 					
-					
-					/*if(!windSpeedAlert && windSpeedValue >= strongWindThreshold)
-					{
-						fmWindSpeedAlert = true;
-						windSpeedAlert = true;
-					}
-					else
-						fmWindSpeedAlert = false;
-					if(windSpeedAlert && windSpeedValue < strongWindThreshold)
-					{
-						fdWindSpeedAlert = true;
-						windSpeedAlert = false;
-					}
-					else
-						fdWindSpeedAlert = false;				
-					
-					//FM and FD Temperature
-					
-					if(!lowTemperatureAlert && temperature <= lowTemperature)
-					{
-						fmLowTemperatureAlert = true;
-						lowTemperatureAlert = true;
-					}
-					else
-						fmLowTemperatureAlert = false;
-					
-					if(lowTemperatureAlert && temperature > lowTemperature)
-					{
-						fdLowTemperatureAlert = true;
-						lowTemperatureAlert = false;
-					}
-					else
-						fdLowTemperatureAlert = false;
-					//High temperature
-					
-					if(!highTemperatureAlert && temperature >= highTemperature)
-					{
-						fmHighTemperatureAlert = true;
-						highTemperatureAlert = true;
-					}
-					else
-						fmHighTemperatureAlert = false;
-					
-					if(highTemperatureAlert && temperature < highTemperature)
-					{
-						fdHighTemperatureAlert = true;
-						highTemperatureAlert = false;
-					}
-					else
-						fdHighTemperatureAlert = false;	*/
-					
+					//if(previousMeteoSet.getwin)
+				
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -480,6 +400,7 @@ public class MeteoAg extends Agent{
 	
 	MeteoModel model;
 	private String serviceName = null;
+	
 	
 	
 	private void queryMeteoServer(){
@@ -568,7 +489,7 @@ public class MeteoAg extends Agent{
 		queryMeteoServer();	
 		logWeatherData();
 		
-		// Register the service
+		// Register the service in DF
 	  	System.out.println("Agent "+getLocalName()+" registering service \""+serviceName+"\" of type \"meteo\"");
 	  	try {
 	  		DFAgentDescription dfd = new DFAgentDescription();
@@ -580,6 +501,7 @@ public class MeteoAg extends Agent{
 	  		sd.addOntologies("meteo-ontology");
 	  		// Agents that want to use this service need to "speak" the FIPA-SL language
 	  		sd.addLanguages(FIPANames.ContentLanguage.FIPA_SL);
+	  		// Properties for this instance
 	  		sd.addProperties(new Property("location", "Benney"));
 	  		dfd.addServices(sd);
 	  		
@@ -588,8 +510,10 @@ public class MeteoAg extends Agent{
 	  	catch (FIPAException fe) {
 	  		fe.printStackTrace();
 	  	}
-				
+	  	
+	  	
 		model.addObserver(new Observer(){
+			
 			/*
 			 * On Every updates, try to see if there is an observer to notify (depending on threshold)
 			 * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
@@ -602,9 +526,8 @@ public class MeteoAg extends Agent{
 				for (Entry<Subscription, subscriptionParams> subscriber : subscribers
 						.entrySet()) {
 					if(subscriber.getValue().getWeatherPhenomenon() instanceof Wind)
-					{
-						if(windLevelHasChanged)
-							windLevelHasChanged = false;
+					{			
+						if(model.isWindLevelHasChanged())
 								
 							try {
 								notifySubscriber(subscriber.getKey());
@@ -618,6 +541,10 @@ public class MeteoAg extends Agent{
 						{
 						}
 				}	
+				//observers have been notified, lets reset the flag
+				if(model.isWindLevelHasChanged())
+					model.setWindLevelHasChanged(false);
+				//TODO : idem for Rain
 			}
 	
 		});
