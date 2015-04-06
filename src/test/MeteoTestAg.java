@@ -21,10 +21,9 @@ import jade.util.leap.Iterator;
 import meteo.Ontology;
 import meteo.onto.Alert;
 import meteo.onto.HasLevel;
-import meteo.onto.IsStrong;
-import meteo.onto.Strong;
+
+import meteo.onto.StrongWind;
 import meteo.onto.Wind;
-import meteo.onto.WindLevel;
 
 
 /*
@@ -74,19 +73,21 @@ public class MeteoTestAg extends GuiAgent{
 				@Override
 				protected void handleInform(ACLMessage msg) {
 					
-					//frame.appendLog(msg.toString(), false);
 					ContentElement reply;
 					AID sender = msg.getSender();
 					try {
 						reply = getContentManager().extractContent(msg);
 						if(reply instanceof HasLevel){
 							System.out.print(sender.getName());
-							if(((HasLevel)reply).getWindLevel() instanceof Strong){
-							System.out.print(" said : actuel wind is strong : ");
+							System.out.print(" said : actual wind is : ");
+							System.out.println(((HasLevel) reply).getWind().getClass());
+							
+							/*if(((HasLevel)reply).getWind() instanceof StrongWind ){
+							System.out.print(" said : actual wind is : ");
 							//System.out.println(((Wind)reply).getSpeed());
 							}
 							else
-								System.out.println(((HasLevel) reply).getWind().getSpeed());
+								System.out.println(((HasLevel) reply).getWind().getSpeed());*/
 											
 						}
 					

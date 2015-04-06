@@ -2,7 +2,9 @@ package test;
 
 
 
-import meteo.onto.IsStrong;
+
+import meteo.onto.HasLevel;
+import meteo.onto.StrongWind;
 import jade.content.ContentElement;
 import jade.content.lang.Codec.CodecException;
 import jade.content.lang.sl.SLCodec;
@@ -117,7 +119,7 @@ public class SearchAndSubscribeAg extends Agent{
 		msg.addReceiver(meteoAg);
 		msg.setLanguage(langage.getName());
 		msg.setOntology(meteo.Ontology.NAME);
-		IsStrong  content= new IsStrong();
+		HasLevel  content= new HasLevel();
 		//content.setInventory(new Inventory(inventoryAg));
 		//content.setQuantity(10);
 		//id = contained_product_ids.get(name);
@@ -135,7 +137,7 @@ public class SearchAndSubscribeAg extends Agent{
 					try {
 						reply = getContentManager().extractContent(msg);
 					
-						if (reply instanceof IsStrong) {
+						if (((HasLevel)reply).getWind() instanceof StrongWind) {
 							System.out.println("Alert wind : ");
 						}
 					} catch (CodecException | OntologyException e) {

@@ -96,7 +96,7 @@ protected void setup() {
 	            		msg.setLanguage(langage.getName());
 	            		msg.setOntology(Ontology.NAME);
 	            		//Strong wind
-	            		IsStrong content = new IsStrong();
+	            		HasLevel content = new HasLevel();
 	            		//isStrong.
 	            		
 	            		//Alert content = new Alert();
@@ -118,10 +118,10 @@ protected void setup() {
 	            					try {
 	            						reply = getContentManager().extractContent(msg);
 	            					
-	            						if (reply instanceof IsStrong) {
-	            							IsStrong isStrong = (IsStrong)reply;
+	            						if (((HasLevel)reply).getWind() instanceof StrongWind) {
+	            							StrongWind sw = (StrongWind)reply;
 	            							//float speed = alert.getWindAlert().getValue();
-	            							System.out.print("------------Wind alert : ");System.out.println(isStrong.getWind().getSpeed());
+	            							System.out.print("------------Wind alert : ");System.out.println(sw.getSpeed());
 	            							//frame.setQueryResult(q);
 	            						}
 	            					} catch (CodecException | OntologyException e) {

@@ -8,7 +8,7 @@ import jade.content.Predicate;
 
 public class HasLevel implements Predicate{
 	private Wind wind;
-	private WindLevel windLevel;
+	//private WindLevel windLevel;
 	
 	public Wind getWind() {
 		return wind;
@@ -18,13 +18,13 @@ public class HasLevel implements Predicate{
 		this.wind = wind;
 	}
 
-	public WindLevel getWindLevel() {
+	/*public WindLevel getWindLevel() {
 		return windLevel;
 	}
 
 	public void setWindLevel(WindLevel windLevel) {
 		this.windLevel = windLevel;
-	}
+	}*/
 	
 	
 	

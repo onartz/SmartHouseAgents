@@ -27,13 +27,14 @@ import org.json.JSONObject;
 
 import meteo.Ontology;
 import meteo.onto.Alert;
+import meteo.onto.CalmWind;
 import meteo.onto.HasLevel;
-import meteo.onto.IsStrong;
+import meteo.onto.LightWind;
 import meteo.onto.Rain;
-import meteo.onto.Strong;
+import meteo.onto.StormWind;
+import meteo.onto.StrongWind;
 import meteo.onto.WeatherPhenomenon;
 import meteo.onto.Wind;
-import meteo.onto.WindLevel;
 import jade.content.ContentElement;
 import jade.content.Predicate;
 import jade.content.lang.Codec.CodecException;
@@ -104,18 +105,13 @@ public class MeteoAg extends Agent{
 	private static final String INFLUXDB_USERNAME = "root";
 	private static final String INFLUXDB_USERPASSWORD = "root";
 	private static final String INFLUXDB_DATABASENAME = "Loumanolkar";
-	//strongWind = windSpeed > 2m/s
-	//private static final int strongWindTreshold = 2;
-	//public static final float strongWindThreshold = 1;
+	
 	/*
 	 * 
 	 * Agent params
 	 */
 	private float agLongitude;
 	private float agLatitude;
-	//private boolean windSpeedAlert;
-	private float highTemperatureAlert;
-	private float lowTemperatureAlert;
 	
 	
 	/*
@@ -254,54 +250,15 @@ public class MeteoAg extends Agent{
 		private MeteoForecast forecast;
 		
 		private AID agentAid;
-		//private float temperature;
-		//private float wind;
+		
 		private float latitude;
 		private float longitude;
-		//private int humidity;
-		//Threshold for StrongWind
-		
-		private boolean lowTemperatureAlert;
-		private boolean highTemperatureAlert;
-		private float lowTemperature;
-		private float highTemperature;
-		private boolean fmWindSpeedAlert;
-		private boolean fdWindSpeedAlert;
-		private boolean fmHighTemperatureAlert;
-		private boolean fmLowTemperatureAlert;
-		private boolean fdHighTemperatureAlert;
-		private boolean fdLowTemperatureAlert;
-		
-		//private Wind wind;
-		
+
 		
 		public void setWind(Wind wind) {
 			this.actualMeteoSet.setWind(wind);
 		}
 		
-		public float getWindSpeed() {
-			return windSpeed;
-		}
-		public void setWindSpeed(float windSpeed) {
-			this.windSpeed = windSpeed;
-		}
-		private float windSpeed;
-		private boolean windSpeedAlert;
-
-		private MeteoSet previousMeteoSet;
-		
-		public boolean isFmWindSpeedAlert() {
-			return fmWindSpeedAlert;
-		}
-		public void setFmWindSpeedAlert(boolean fmWindSpeedAlert) {
-			this.fmWindSpeedAlert = fmWindSpeedAlert;
-		}
-		public boolean isFdWindSpeedAlert() {
-			return fdWindSpeedAlert;
-		}
-		public void setFdWindSpeedAlert(boolean fdWindSpeedAlert) {
-			this.fdWindSpeedAlert = fdWindSpeedAlert;
-		}
 		
 		
 		public float getLatitude() {
@@ -328,17 +285,7 @@ public class MeteoAg extends Agent{
 			// TODO Auto-generated method stub
 			
 		}
-		public boolean isWindSpeedAlert() {
-			return windSpeedAlert;
-		}
-		public boolean isHighTemperatureAlert() {
-			
-			return highTemperatureAlert;
-		}
-		public boolean isLowTemperatureAlert() {
-			// TODO Auto-generated method stub
-			return lowTemperatureAlert;
-		}
+		
 		/*
 		 * Default constructor
 		 */
@@ -348,11 +295,11 @@ public class MeteoAg extends Agent{
 			latitude = 0;
 			forecast = new MeteoForecast();
 			actualMeteoSet = new MeteoSet();
-			previousMeteoSet = new MeteoSet();
+			new MeteoSet();
 			windLevelHasChanged = true;
 			
 		}
-		public void update(String jsonResult) {
+		public void updateModel(String jsonResult) {
 			
 			try {
 				JSONObject jsonObj = new JSONObject(jsonResult);
@@ -372,12 +319,20 @@ public class MeteoAg extends Agent{
 					df.applyPattern("000.00");
 					windSpeedValue = Float.parseFloat(df.format(windSpeedValue));
 									
-					//udate with new datas
-					//Todo : changer windDirection
-					Wind wind = new Wind(windSpeedValue,0);
 					
-					/*if(!(wind.getWindLevel().getClass().equals(actualMeteoSet.getWind().getWindLevel().getClass())))
-							model.setWindLevelHasChanged(true);*/
+					Wind wind = null;
+					if(windSpeedValue <1)
+						wind = new CalmWind(windSpeedValue,0);
+					if(windSpeedValue >=1 && windSpeedValue < 5)
+						wind = new LightWind(windSpeedValue,0);
+					if(windSpeedValue>5 && windSpeedValue <=10)
+						wind = new StrongWind(windSpeedValue, 0);
+					if(windSpeedValue > 15)
+						wind = new StormWind(windSpeedValue, 0);
+					
+					if(!(actualMeteoSet.getWind().getClass().equals(wind.getClass())))
+						model.setWindLevelHasChanged(true);
+					
 					actualMeteoSet.update(temperature, humidity, wind);
 													
 				
@@ -438,7 +393,7 @@ public class MeteoAg extends Agent{
 
 		
 		// TODO : modify model
-		model.update(jsonResult);
+		model.updateModel(jsonResult);
 
 	} catch (Exception e) {
 		e.printStackTrace();
@@ -476,16 +431,12 @@ public class MeteoAg extends Agent{
 		agLongitude = Float.parseFloat((String) args[0]);
 		agLatitude = Float.parseFloat((String) args[1]);
 		serviceName = (String)args[2];
-		lowTemperatureAlert = Float.parseFloat((String)args[3]);
-		highTemperatureAlert = Float.parseFloat((String)args[4]);
-		//windSpeedAlert = Float.parseFloat((String)args[5]);
+		
 				
 		model.setLongitude(agLongitude);
 		model.setLatitude(agLatitude);
 		//Thresholds
-		//model.setWindSpeed(strongWindThreshold);
-		//model.setLowTemperature(lowTemperatureAlert);
-		//model.setHighTemperature(highTemperatureAlert);
+		
 		queryMeteoServer();	
 		logWeatherData();
 		
@@ -554,6 +505,11 @@ public class MeteoAg extends Agent{
 		 * mise à jour du modele
 		 */
 		addBehaviour(new TickerBehaviour(this,10000){
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onTick() {
@@ -689,7 +645,7 @@ public class MeteoAg extends Agent{
 		if(wp instanceof Wind){
 			reply = new HasLevel();
 			((HasLevel) reply).setWind(model.getActual().getWind());
-			((HasLevel) reply).setWindLevel(model.getActual().getWind().getWindLevel());
+			//((HasLevel) reply).setWindLevel(model.getActual().getWind().getWindLevel());
 			
 		}
 		else if(wp instanceof Rain){
